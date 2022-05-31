@@ -24,6 +24,8 @@ const options = {
 
 // const loadService = new ServiceAPI();
 
+// let currentPage = 1;
+
 form.addEventListener('submit', onFormSubmit);
 
 const callback = function (entries, observer) {
@@ -51,11 +53,6 @@ function onFormSubmit(e) {
 async function loadPictures() {
   const result = await ServiceAPI.getImages();
   dataProcessing(result);
-  // .then(dataProcessing)
-  // .catch(error => {
-  //   console.log(error);
-  //   Notify.failure('Something went wrong, please try again...');
-  // });
 }
 
 function dataProcessing(data) {
@@ -83,3 +80,17 @@ function dataProcessing(data) {
   }
   observer.observe(gallery.lastElementChild);
 }
+// async function generateMarkupUI() {
+//   const result = await ServiceAPI.getImages();
+//   const images = result?.data?.hits;
+//   generateImagesMarkup(images);
+//   lightbox = new SimpleLightbox('.gallery a');
+// }
+// function generateImagesMarkup(images) {
+//   refs.gallery.insertAdjacentHTML('beforeend', galleryList(images));
+// }
+// async function loadMore() {
+//   lightbox.refresh();
+//   ServiceAPI.params.page += 1;
+//   generateMarkupUI();
+// }
