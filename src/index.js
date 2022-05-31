@@ -1,5 +1,5 @@
 import ServiceAPI from './apiService';
-import gallerylist from './gallery-list';
+import galleryList from './gallery-list';
 
 import './css/styles.css';
 import { Notify } from 'notiflix';
@@ -22,7 +22,7 @@ const options = {
   },
 };
 
-const loadService = new ServiceAPI();
+// const loadService = new ServiceAPI();
 
 form.addEventListener('submit', onFormSubmit);
 
@@ -42,21 +42,20 @@ function onFormSubmit(e) {
   const isFilled = e.currentTarget.elements.searchQuery.value;
   if (isFilled) {
     searchButton.disabled = true;
-    loadService.searchQuery = isFilled;
-    loadService.resetPage();
+    ServiceAPI.params.q = isFilled;
+    // loadService.resetPage();
     gallery.innerHTML = '';
     loadPictures();
   }
 }
-
-function loadPictures() {
-  loadService
-    .getPictures()
-    .then(dataProcessing)
-    .catch(error => {
-      console.log(error);
-      Notify.failure('Something went wrong, please try again...');
-    });
+async function loadPictures() {
+  const result = await ServiceAPI.getImages();
+  dataProcessing(result);
+  // .then(dataProcessing)
+  // .catch(error => {
+  //   console.log(error);
+  //   Notify.failure('Something went wrong, please try again...');
+  // });
 }
 
 function dataProcessing(data) {
@@ -69,13 +68,12 @@ function dataProcessing(data) {
     Notify.warning(`We're sorry, but you've reached the end of search results.`);
     return;
   }
-
-  gallery.insertAdjacentHTML('beforeend', gallerylist(data.data.hits));
+  gallery.insertAdjacentHTML('beforeend', galleryList(data.data.hits));
 
   galleryLightBox.refresh();
 
-  if (loadService.pageNumber === 2) {
-    Notify.info(`Hooray! We found ${data.data.totalHits} images.`);
+  if (ServiceAPI.params.page === 2) {
+    Notify.success(`Hooray! We found ${data.totalHits} images.`);
   } else {
     const { height: cardHeight } = gallery.firstElementChild.getBoundingClientRect();
     window.scrollBy({
