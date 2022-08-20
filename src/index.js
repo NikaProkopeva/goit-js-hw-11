@@ -28,31 +28,30 @@ const options = {
 
 form.addEventListener('submit', onFormSubmit);
 
-const callback = function (entries, observer) {
+async function callback(entries, observer) {
   if (entries[0].isIntersecting) {
     observer.unobserve(entries[0].target);
-    loadPictures();
+    ServiceAPI.params.page += 1;
+    const result = await ServiceAPI.getImages();
+    dataProcessing(result);
   }
-};
+}
 const observer = new IntersectionObserver(callback, options.intersectionObserver);
 
 let galleryLightBox = new SimpleLightbox('.gallery a', options.simpleLightBox);
 
-function onFormSubmit(e) {
+async function onFormSubmit(e) {
   e.preventDefault();
 
   const isFilled = e.currentTarget.elements.searchQuery.value;
   if (isFilled) {
     searchButton.disabled = true;
     ServiceAPI.params.q = isFilled;
-    // loadService.resetPage();
     gallery.innerHTML = '';
-    loadPictures();
+    const result = await ServiceAPI.getImages();
+    dataProcessing(result);
+    Notify.success(`Hooray! We found ${result.data.total} images.`);
   }
-}
-async function loadPictures() {
-  const result = await ServiceAPI.getImages();
-  dataProcessing(result);
 }
 
 function dataProcessing(data) {
@@ -69,17 +68,65 @@ function dataProcessing(data) {
 
   galleryLightBox.refresh();
 
-  if (ServiceAPI.params.page === 2) {
-    Notify.success(`Hooray! We found ${data.totalHits} images.`);
-  } else {
-    const { height: cardHeight } = gallery.firstElementChild.getBoundingClientRect();
-    window.scrollBy({
-      top: cardHeight * 2 + 120,
-      behavior: 'smooth',
-    });
-  }
   observer.observe(gallery.lastElementChild);
 }
+
+// draft
+
+// form.addEventListener('submit', onFormSubmit);
+
+// const callback = function (entries, observer) {
+//   if (entries[0].isIntersecting) {
+//     observer.unobserve(entries[0].target);
+//     loadPictures();
+//   }
+// };
+// const observer = new IntersectionObserver(callback, options.intersectionObserver);
+
+// let galleryLightBox = new SimpleLightbox('.gallery a', options.simpleLightBox);
+
+// function onFormSubmit(e) {
+//   e.preventDefault();
+
+//   const isFilled = e.currentTarget.elements.searchQuery.value;
+//   if (isFilled) {
+//     searchButton.disabled = true;
+//     ServiceAPI.params.q = isFilled;
+//     // loadService.resetPage();
+//     gallery.innerHTML = '';
+//     loadPictures();
+//   }
+// }
+// async function loadPictures() {
+//   const result = await ServiceAPI.getImages();
+//   dataProcessing(result);
+// }
+
+// function dataProcessing(data) {
+//   searchButton.disabled = false;
+//   if (data.data.totalHits === 0) {
+//     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+//     return;
+//   }
+//   if (data.data.totalHits !== 0 && data.data.hits.length === 0) {
+//     Notify.warning(`We're sorry, but you've reached the end of search results.`);
+//     return;
+//   }
+//   gallery.insertAdjacentHTML('beforeend', galleryList(data.data.hits));
+
+//   galleryLightBox.refresh();
+
+//   if (ServiceAPI.params.page === 2) {
+//     Notify.success(`Hooray! We found ${data.totalHits} images.`);
+//   } else {
+//     const { height: cardHeight } = gallery.firstElementChild.getBoundingClientRect();
+//     window.scrollBy({
+//       top: cardHeight * 2 + 120,
+//       behavior: 'smooth',
+//     });
+//   }
+//   observer.observe(gallery.lastElementChild);
+// }
 // async function generateMarkupUI() {
 //   const result = await ServiceAPI.getImages();
 //   const images = result?.data?.hits;
