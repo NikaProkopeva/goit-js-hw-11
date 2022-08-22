@@ -5,6 +5,7 @@ import './css/styles.css';
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import apiService from './apiService';
 
 const form = document.querySelector('.search-form');
 const searchButton = document.querySelector('[type=submit]');
@@ -42,6 +43,7 @@ let galleryLightBox = new SimpleLightbox('.gallery a', options.simpleLightBox);
 
 async function onFormSubmit(e) {
   e.preventDefault();
+  ServiceAPI.params.page += 1;
 
   const isFilled = e.currentTarget.elements.searchQuery.value;
   if (isFilled) {
@@ -50,9 +52,20 @@ async function onFormSubmit(e) {
     gallery.innerHTML = '';
     const result = await ServiceAPI.getImages();
     dataProcessing(result);
-    Notify.success(`Hooray! We found ${result.data.total} images.`);
+    // loadpictures();
+    // Notify.success(`Hooray! We found ${result.data.total} images.`);
   }
 }
+
+// function loadPictures() {
+//   loadService
+//     .getPictures()
+//     .then(dataProcessing)
+//     .catch(error => {
+//       console.log(error);
+//       Notify.failure(`We're sorry, but you've reached the end of search results.');
+//     });
+// }
 
 function dataProcessing(data) {
   searchButton.disabled = false;
@@ -60,13 +73,18 @@ function dataProcessing(data) {
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     return;
   }
-  if (data.data.totalHits !== 0 && data.data.hits.length === 0) {
+  if (data.data.totalHits !== 0 && data.data.totalHits.length === 0) {
     Notify.warning(`We're sorry, but you've reached the end of search results.`);
     return;
   }
+  // If(apiService.params.page === 1){
+  //   Notify.success(`Hooray! We found ${data.data.total} images.`);
+  // }
+  Notify.success(`Hooray! We found ${data.data.total} images.`);
   gallery.insertAdjacentHTML('beforeend', galleryList(data.data.hits));
 
   galleryLightBox.refresh();
+  ServiceAPI.params.page += 1;
 
   observer.observe(gallery.lastElementChild);
 }
