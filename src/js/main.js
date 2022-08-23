@@ -65,10 +65,10 @@ function dataProcessing(data) {
     Notify.failure('Sorry, there are no images matching your search query. Please try again.');
     return;
   }
-  if (data.data.totalHits !== 0 && data.data.hits.length === 0) {
-    Notify.failure('Something went wrong, please try again...');
-    return;
-  }
+  // if (data.data.totalHits !== 0 && data.data.hits.length === 0) {
+  //   Notify.failure('Something went wrong, please try again...');
+  //   return;
+  // }
 
   gallery.insertAdjacentHTML('beforeend', markup(data.data.hits));
 
